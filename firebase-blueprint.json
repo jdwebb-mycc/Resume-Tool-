@@ -1,0 +1,55 @@
+{
+  "entities": {
+    "FinalizedResume": {
+      "title": "Finalized Resume",
+      "description": "A record of a finalized resume with its metadata and job description.",
+      "type": "object",
+      "properties": {
+        "fullName": {
+          "type": "string",
+          "description": "The full name of the person on the resume."
+        },
+        "editorName": {
+          "type": "string",
+          "description": "The name of the person who redid the resume."
+        },
+        "finalizedAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "The date and time the resume was finalized."
+        },
+        "jobDescriptionUrl": {
+          "type": "string",
+          "description": "A link to the job description used."
+        },
+        "jobDescriptionText": {
+          "type": "string",
+          "description": "The text of the job description used for searching."
+        },
+        "resumeName": {
+          "type": "string",
+          "description": "The name given to this resume version."
+        },
+        "version": {
+          "type": "integer",
+          "description": "The version number of the resume."
+        },
+        "resumeData": {
+          "type": "object",
+          "description": "The full resume data object."
+        },
+        "uid": {
+          "type": "string",
+          "description": "The UID of the user who saved this resume."
+        }
+      },
+      "required": ["fullName", "editorName", "finalizedAt", "resumeName", "version", "resumeData", "uid"]
+    }
+  },
+  "firestore": {
+    "/finalizedResumes/{resumeId}": {
+      "schema": "FinalizedResume",
+      "description": "Collection of finalized resumes."
+    }
+  }
+}

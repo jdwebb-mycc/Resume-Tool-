@@ -1,0 +1,56 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // ===============================================================
+    // Assumed Data Model
+    // ===============================================================
+    //
+    // Collection: finalizedResumes
+    // Document ID: auto-generated
+    // Fields:
+    //   - fullName: string (required)
+    //   - editorName: string (required)
+    //   - finalizedAt: timestamp (required)
+    //   - jobDescriptionUrl: string (optional)
+    //   - jobDescriptionText: string (optional)
+    //   - resumeName: string (required)
+    //   - version: number (required)
+    //   - resumeData: map (required)
+    //   - uid: string (required)
+    //
+    // ===============================================================
+
+    // ===============================================================
+    // Helper Functions
+    // ===============================================================
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+
+    function isValidResume(data) {
+      return data.keys().hasAll(['fullName', 'editorName', 'finalizedAt', 'resumeName', 'version', 'resumeData', 'uid']) &&
+             data.fullName is string && data.fullName.size() > 0 && data.fullName.size() < 200 &&
+             data.editorName is string && data.editorName.size() > 0 && data.editorName.size() < 200 &&
+             data.resumeName is string && data.resumeName.size() > 0 && data.resumeName.size() < 200 &&
+             data.version is int && data.version > 0 &&
+             data.resumeData is map &&
+             data.uid == request.auth.uid;
+    }
+
+    match /finalizedResumes/{resumeId} {
+      // Allow authenticated users to read all resumes for searching
+      allow read: if isAuthenticated();
+      
+      // Allow users to create their own resume records
+      allow create: if isAuthenticated() && isValidResume(request.resource.data);
+      
+      // Allow owners to update or delete their own records
+      allow update: if isOwner(resource.data.uid) && isValidResume(request.resource.data);
+      allow delete: if isOwner(resource.data.uid);
+    }
+  }
+}
